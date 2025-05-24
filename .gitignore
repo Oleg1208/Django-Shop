@@ -1,0 +1,31 @@
+# База данных
+db.sqlite3
+
+# Виртуальное окружение
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Медиа файлы
+media/
+
+# Статические файлы
+static/
+
+# Локальные настройки
+.env
+.env.local
+
+# IDE файлы
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Логи
+*.log
+
+# Миграции (опционально)
+# */migrations/*.py
+# !*/migrations/__init__.py
