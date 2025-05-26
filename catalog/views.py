@@ -10,6 +10,9 @@ class CategoryListView(ListView):
     template_name = 'catalog/category_list.html'
     context_object_name = 'categories'
 
+    def get_queryset(self):
+        return Category.objects.exclude(slug='').order_by('name')
+
 class CategoryDetailView(DetailView):
     model = Category
     template_name = 'catalog/category_detail.html'

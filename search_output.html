@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Поиск товаров</title>
+  <style>
+    header { padding: 10px; background: #f0f0f0; }
+    header a { margin-right: 10px; }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/catalog/categories/">Категории</a>
+    <a href="/catalog/products/">Товары</a>
+    <a href="/catalog/search/">Поиск товаров</a>
+  </header>
+  <main>
+    
+<h1>Поиск товаров</h1>
+<form method="get" action="/catalog/search/">
+  <input type="text" name="q" value="телефон" placeholder="Введите название или описание товара" />
+  <button type="submit">Поиск</button>
+</form>
+
+
+  <h2>Результаты поиска по запросу: "телефон"</h2>
+  
+    <p>Товары не найдены.</p>
+  
+
+
+  </main>
+</body>
+</html> 

@@ -1,0 +1,24 @@
+{% extends "catalog/base.html" %}
+
+{% block title %}Список товаров{% endblock %}
+
+{% block content %}
+<h1>Список товаров</h1>
+{% if products %}
+  <ul>
+    {% for product in products %}
+      <li>
+        <a href="{% url 'catalog:product_detail' product.id product.slug %}">{{ product.name }}</a>
+        {% if product.price %}
+          <span>— {{ product.price }} руб.</span>
+        {% endif %}
+        {% if product.description %}
+          <p>{{ product.description|truncatewords:20 }}</p>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>Товары не найдены.</p>
+{% endif %}
+{% endblock %} 
