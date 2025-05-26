@@ -1,0 +1,31 @@
+{% extends "catalog/base.html" %}
+
+{% block title %}Поиск товаров{% endblock %}
+
+{% block content %}
+<h1>Поиск товаров</h1>
+<form method="get" action="{% url 'catalog:product_search' %}">
+  <input type="text" name="q" value="{{ query }}" placeholder="Введите название или описание товара" />
+  <button type="submit">Поиск</button>
+</form>
+
+{% if query %}
+  <h2>Результаты поиска по запросу: "{{ query }}"</h2>
+  {% if products %}
+    <ul>
+      {% for product in products %}
+        <li>
+          <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+          {% if product.description %}
+            <p>{{ product.description|truncatewords:30 }}</p>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Товары не найдены.</p>
+  {% endif %}
+{% else %}
+  <p>Введите запрос для поиска товаров.</p>
+{% endif %}
+{% endblock %} 
