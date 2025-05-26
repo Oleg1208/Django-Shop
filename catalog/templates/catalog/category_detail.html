@@ -1,0 +1,39 @@
+{% extends "catalog/base.html" %}
+
+{% block title %}{{ category.name }}{% endblock %}
+
+{% block content %}
+<div class="category-detail">
+    <h1>{{ category.name }}</h1>
+    
+    {% if category.description %}
+        <div class="category-description">
+            {{ category.description|linebreaks }}
+        </div>
+    {% endif %}
+    
+    {% if category.image %}
+        <div class="category-image">
+            <img src="{{ category.image.url }}" alt="{{ category.name }}">
+        </div>
+    {% endif %}
+
+    <h2>Товары в категории:</h2>
+    {% if category.products.all %}
+        <ul class="products-list">
+            {% for product in category.products.all %}
+                <li>
+                    <a href="{% url 'catalog:product_detail' product.id product.slug %}">
+                        {{ product.name }}
+                    </a>
+                    {% if product.price %}
+                        <p class="price">Цена: {{ product.price }} руб.</p>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>В данной категории пока нет товаров.</p>
+    {% endif %}
+</div>
+{% endblock %} 
