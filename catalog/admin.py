@@ -18,7 +18,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ['first_name', 'last_name', 'email', 'phone', 'created']
+    list_display = ['user', 'first_name', 'last_name', 'email', 'phone', 'created']
     search_fields = ['first_name', 'last_name', 'email', 'phone']
     date_hierarchy = 'created'
 

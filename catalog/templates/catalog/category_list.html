@@ -1,0 +1,23 @@
+{% extends "catalog/base.html" %}
+
+{% block title %}Список категорий{% endblock %}
+
+{% block content %}
+<h1>Список категорий</h1>
+{% if categories %}
+  <ul>
+    {% for category in categories %}
+      {% if category.slug %}
+        <li>
+          <a href="{% url 'catalog:category_detail' category.slug %}">{{ category.name }}</a>
+          {% if category.description %}
+            <p>{{ category.description|truncatewords:30 }}</p>
+          {% endif %}
+        </li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>Категории не найдены.</p>
+{% endif %}
+{% endblock %} 

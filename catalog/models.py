@@ -1,12 +1,20 @@
 from django.db import models
 from django.urls import reverse
+from django.conf import settings
 
 
-class Category(models.Model):
-    """Модель для категорий товаров"""
-    name = models.CharField(max_length=200, verbose_name='Название категории')
+class BaseCatalogItem(models.Model):
+    name = models.CharField(max_length=200, verbose_name='Название')
     slug = models.SlugField(max_length=200, unique=True, verbose_name='URL')
     description = models.TextField(blank=True, verbose_name='Описание')
+    image = models.ImageField(upload_to='', blank=True, null=True, verbose_name='Изображение')
+
+    class Meta:
+        abstract = True
+
+
+class Category(BaseCatalogItem):
+    """Модель для категорий товаров"""
     image = models.ImageField(upload_to='categories/', blank=True, null=True, verbose_name='Изображение')
     
     class Meta:
@@ -21,18 +29,15 @@ class Category(models.Model):
         return reverse('catalog:category_detail', args=[self.slug])
 
 
-class Product(models.Model):
+class Product(BaseCatalogItem):
     """Модель для товаров"""
     category = models.ForeignKey(Category, related_name='products', on_delete=models.CASCADE, verbose_name='Категория')
-    name = models.CharField(max_length=200, verbose_name='Название товара')
-    slug = models.SlugField(max_length=200, unique=True, verbose_name='URL')
-    image = models.ImageField(upload_to='products/', blank=True, null=True, verbose_name='Изображение')
-    description = models.TextField(blank=True, verbose_name='Описание')
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Цена')
     stock = models.PositiveIntegerField(default=0, verbose_name='Наличие')
     available = models.BooleanField(default=True, verbose_name='Доступен')
     created = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
     updated = models.DateTimeField(auto_now=True, verbose_name='Обновлен')
+    image = models.ImageField(upload_to='products/', blank=True, null=True, verbose_name='Изображение')
     
     class Meta:
         ordering = ['name']
@@ -53,6 +58,7 @@ class Product(models.Model):
 
 class Customer(models.Model):
     """Модель для покупателей"""
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Пользователь')
     first_name = models.CharField(max_length=100, verbose_name='Имя')
     last_name = models.CharField(max_length=100, verbose_name='Фамилия')
     email = models.EmailField(unique=True, verbose_name='Email')
