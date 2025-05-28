@@ -1,5 +1,6 @@
 from django.db import models
 from django.urls import reverse
+from django.conf import settings
 
 
 class BaseCatalogItem(models.Model):
@@ -57,6 +58,7 @@ class Product(BaseCatalogItem):
 
 class Customer(models.Model):
     """Модель для покупателей"""
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Пользователь')
     first_name = models.CharField(max_length=100, verbose_name='Имя')
     last_name = models.CharField(max_length=100, verbose_name='Фамилия')
     email = models.EmailField(unique=True, verbose_name='Email')
