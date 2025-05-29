@@ -3,22 +3,50 @@
 {% block title %}Список товаров{% endblock %}
 
 {% block content %}
-<h1>Список товаров</h1>
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="display-4 mb-4">Список товаров</h1>
+    </div>
+</div>
+
 {% if products %}
-  <ul>
-    {% for product in products %}
-      <li>
-        <a href="{% url 'catalog:product_detail' product.id product.slug %}">{{ product.name }}</a>
-        {% if product.price %}
-          <span>— {{ product.price }} руб.</span>
-        {% endif %}
-        {% if product.description %}
-          <p>{{ product.description|truncatewords:20 }}</p>
-        {% endif %}
-      </li>
-    {% endfor %}
-  </ul>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for product in products %}
+            <div class="col">
+                <div class="card product-card h-100">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                    {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fas fa-image fa-3x text-muted"></i>
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        {% if product.description %}
+                            <p class="card-text text-muted">{{ product.description|truncatewords:20 }}</p>
+                        {% endif %}
+                        {% if product.price %}
+                            <p class="price-tag mb-3">{{ product.price }} ₽</p>
+                        {% endif %}
+                        <a href="{% url 'catalog:product_detail' product.id product.slug %}" class="btn btn-primary">
+                            <i class="fas fa-info-circle me-1"></i>Подробнее
+                        </a>
+                    </div>
+                    {% if product.category and product.category.slug %}
+                        <div class="card-footer bg-transparent">
+                            <a href="{% url 'catalog:category_detail' product.category.slug %}" class="category-badge">
+                                <i class="fas fa-tag me-1"></i>{{ product.category.name }}
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 {% else %}
-  <p>Товары не найдены.</p>
+    <div class="alert alert-info" role="alert">
+        <i class="fas fa-info-circle me-2"></i>Товары не найдены.
+    </div>
 {% endif %}
 {% endblock %} 
