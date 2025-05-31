@@ -1,11 +1,73 @@
-{% extends 'base.html' %}
+{% extends 'catalog/base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Вход - {{ block.super }}{% endblock %}
+
 {% block content %}
-  <h2>Вход</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Войти</button>
-  </form>
-  <p>Нет аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a></p>
-  <p><a href="{% url 'profile' %}">Личный кабинет</a> (требуется вход)</p>
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="text-center mb-4">Вход в систему</h2>
+                
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">
+                                {{ field.label }}
+                            </label>
+                            {{ field.errors }}
+                            {{ field|add_class:"form-control" }}
+                            {% if field.help_text %}
+                                <div class="form-text">{{ field.help_text }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-sign-in-alt me-2"></i>Войти
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="text-center mt-4">
+                    <p class="mb-2">
+                        Нет аккаунта? 
+                        <a href="{% url 'users:register' %}" class="text-decoration-none">
+                            Зарегистрироваться
+                        </a>
+                    </p>
+                    <p class="mb-0">
+                        <a href="{% url 'users:profile' %}" class="text-decoration-none">
+                            <i class="fas fa-user me-1"></i>Личный кабинет
+                        </a>
+                        <small class="text-muted">(требуется вход)</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add Bootstrap form validation
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+</script>
 {% endblock %} 

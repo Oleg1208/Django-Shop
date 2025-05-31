@@ -1,6 +1,8 @@
 from django.db import models
 from django.urls import reverse
 from django.conf import settings
+from django.utils.text import slugify
+from django.core.exceptions import ValidationError
 
 
 class BaseCatalogItem(models.Model):
@@ -28,6 +30,12 @@ class Category(BaseCatalogItem):
     def get_absolute_url(self):
         return reverse('catalog:category_detail', args=[self.slug])
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        self.full_clean()
+        super().save(*args, **kwargs)
+
 
 class Product(BaseCatalogItem):
     """Модель для товаров"""
@@ -54,6 +62,17 @@ class Product(BaseCatalogItem):
     
     def get_absolute_url(self):
         return reverse('catalog:product_detail', args=[self.id, self.slug])
+
+    def clean(self):
+        if self.price < 0:
+            raise ValidationError({'price': 'Цена не может быть отрицательной'})
+        super().clean()
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        self.full_clean()
+        super().save(*args, **kwargs)
 
 
 class Customer(models.Model):

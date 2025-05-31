@@ -3,21 +3,48 @@
 {% block title %}Список категорий{% endblock %}
 
 {% block content %}
-<h1>Список категорий</h1>
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="display-4 mb-4">Категории товаров</h1>
+    </div>
+</div>
+
 {% if categories %}
-  <ul>
-    {% for category in categories %}
-      {% if category.slug %}
-        <li>
-          <a href="{% url 'catalog:category_detail' category.slug %}">{{ category.name }}</a>
-          {% if category.description %}
-            <p>{{ category.description|truncatewords:30 }}</p>
-          {% endif %}
-        </li>
-      {% endif %}
-    {% endfor %}
-  </ul>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for category in categories %}
+            {% if category.slug %}
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-folder me-2 text-primary"></i>
+                                {{ category.name }}
+                            </h5>
+                            {% if category.description %}
+                                <p class="card-text text-muted">{{ category.description|truncatewords:30 }}</p>
+                            {% endif %}
+                            <a href="{% url 'catalog:category_detail' category.slug %}" class="btn btn-outline-primary">
+                                <i class="fas fa-arrow-right me-1"></i>Смотреть товары
+                            </a>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <small class="text-muted">
+                                <i class="fas fa-box me-1"></i>
+                                {% if category.product_count %}
+                                    {{ category.product_count }} товаров
+                                {% else %}
+                                    Нет товаров
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
 {% else %}
-  <p>Категории не найдены.</p>
+    <div class="alert alert-info" role="alert">
+        <i class="fas fa-info-circle me-2"></i>Категории не найдены.
+    </div>
 {% endif %}
 {% endblock %} 

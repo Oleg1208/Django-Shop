@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import Category, Product
 from django.db.models import Q
 
@@ -20,10 +21,31 @@ class CategoryDetailView(DetailView):
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        category = self.get_object()
+        product_list = category.products.all()
+
+        paginator = Paginator(product_list, 9)  # 9 товаров на страницу
+        page = self.request.GET.get('page')
+
+        try:
+            products = paginator.page(page)
+        except PageNotAnInteger:
+            # Если страница не целое число, отображаем первую страницу.
+            products = paginator.page(1)
+        except EmptyPage:
+            # Если страница вне диапазона (например, 9999), отображаем последнюю страницу.
+            products = paginator.page(paginator.num_pages)
+
+        context['products'] = products
+        return context
+
 class ProductListView(ListView):
     model = Product
     template_name = 'catalog/product_list.html'
     context_object_name = 'products'
+    paginate_by = 9
 
 class ProductDetailView(DetailView):
     model = Product
