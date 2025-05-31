@@ -31,10 +31,9 @@ class CategoryModelTest(TestCase):
 
     def test_category_unique_slug(self):
         """Тест уникальности slug"""
-        category = Category.objects.create(name="Test Category")
+        # Попытка создать категорию с таким же именем, как у категории из setUp
         with self.assertRaises(ValidationError):
-            category2 = Category(name="Test Category")
-            category2.full_clean()
+            Category.objects.create(name="Test Category")
 
 class ProductModelTest(TestCase):
     def setUp(self):
@@ -142,7 +141,7 @@ class CatalogViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'catalog/product_detail.html')
         self.assertContains(response, self.product.name)
-        self.assertContains(response, str(self.product.price))
+        self.assertContains(response, f'{self.product.price} ₽')
 
     def test_product_search_view(self):
         """Тест представления поиска продуктов"""
