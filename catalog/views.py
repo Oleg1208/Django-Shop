@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views.generic import ListView, DetailView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import Category, Product
-from django.db.models import Q
+from django.db.models import Q, Count
 
 # Create your views here.
 
@@ -12,7 +12,7 @@ class CategoryListView(ListView):
     context_object_name = 'categories'
 
     def get_queryset(self):
-        return Category.objects.exclude(slug='').order_by('name')
+        return Category.objects.exclude(slug='').annotate(product_count=Count('products')).order_by('name')
 
 class CategoryDetailView(DetailView):
     model = Category
@@ -46,6 +46,9 @@ class ProductListView(ListView):
     template_name = 'catalog/product_list.html'
     context_object_name = 'products'
     paginate_by = 9
+
+    def get_queryset(self):
+      return super().get_queryset().select_related('category')
 
 class ProductDetailView(DetailView):
     model = Product

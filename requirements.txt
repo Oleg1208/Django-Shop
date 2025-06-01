@@ -1,4 +1,6 @@
 Django>=4.2.0
-Pillow>=10.0.0  # для обработки изображений
+Pillow==10.3.0  # для обработки изображений
 django-widget-tweaks>=1.5.0  # для стилизации форм
-python-dotenv>=1.0.0  # для управления переменными окружения 
+python-dotenv>=1.0.0  # для управления переменными окружения
+django-debug-toolbar
+cyrtranslit 

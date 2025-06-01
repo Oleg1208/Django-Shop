@@ -25,4 +25,10 @@ urlpatterns = [
     path('users/', include('users.urls', namespace='users')),
     path('catalog/', include('catalog.urls', namespace='catalog')),
     path('', RedirectView.as_view(url='/catalog/categories/', permanent=False), name='home'),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns += [path('__debug__/', include(debug_toolbar.urls))]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
