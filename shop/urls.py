@@ -19,12 +19,22 @@ from django.urls import path, include
 from django.views.generic import RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
+from rest_framework.routers import DefaultRouter
+from catalog.views import CategoryViewSet, ProductViewSet, CustomerViewSet, OrderViewSet, OrderItemViewSet
+
+router = DefaultRouter()
+router.register(r'categories', CategoryViewSet)
+router.register(r'products', ProductViewSet)
+router.register(r'customers', CustomerViewSet)
+router.register(r'orders', OrderViewSet)
+router.register(r'orderitems', OrderItemViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('users.urls', namespace='users')),
     path('catalog/', include('catalog.urls', namespace='catalog')),
     path('', RedirectView.as_view(url='/catalog/categories/', permanent=False), name='home'),
+    path('api/', include(router.urls)),
 ]
 
 if settings.DEBUG:
