@@ -2,8 +2,7 @@ import os
 import json
 from django.core.management.base import BaseCommand
 from django.conf import settings
-from catalog.models import Category, Product, Customer, Order, OrderItem
-from django.utils.text import slugify
+from catalog.models import Category, Product, Customer, Order, OrderItem, clean_slug
 from decimal import Decimal
 import random
 
@@ -50,16 +49,18 @@ class Command(BaseCommand):
         categories = []
         for cat_data in categories_data:
             # Проверяем, существует ли уже категория с таким slug
-            slug = slugify(cat_data['name'])
+            slug = clean_slug(cat_data['name'])
             if Category.objects.filter(slug=slug).exists():
                 self.stdout.write(f'Категория с slug {slug} уже существует, пропускаем')
                 continue
                 
-            category = Category.objects.create(
+            category = Category(
                 name=cat_data['name'],
                 slug=slug,
                 description=cat_data['description']
             )
+            category.save()
+            
             categories.append(category)
             self.stdout.write(f'Создана категория: {category.name}')
         
@@ -156,7 +157,7 @@ class Command(BaseCommand):
                 category = Category.objects.get(name=prod_data['category'])
                 
                 # Проверяем, существует ли уже продукт с таким slug
-                slug = slugify(prod_data['name'])
+                slug = clean_slug(prod_data['name'])
                 if Product.objects.filter(slug=slug).exists():
                     self.stdout.write(f'Продукт с slug {slug} уже существует, пропускаем')
                     continue

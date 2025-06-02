@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'catalog.apps.CatalogConfig',  # Добавляем наше приложение
     'users',
     'debug_toolbar', # Добавляем django-debug-toolbar
+    'django_cleanup',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

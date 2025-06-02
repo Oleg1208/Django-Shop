@@ -58,6 +58,37 @@ class CatalogViewsTest(TestCase):
         self.assertContains(response, self.product.name)
         self.assertContains(response, str(self.product.price))
 
+    def test_product_list_pagination(self):
+        """Тест пагинации на странице списка продуктов"""
+        # Создаем достаточно продуктов для пагинации (9 на страницу)
+        for i in range(15):
+            Product.objects.create(
+                name=f"Product {i}",
+                description="Test Description",
+                price=Decimal(f'{100 + i}.00'),
+                category=self.category
+            )
+
+        # Тест первой страницы
+        response = self.client.get(reverse('catalog:product_list'))
+        self.assertEqual(response.status_code, 200)
+        # Проверяем, что на первой странице 9 продуктов + 1 созданный в setUp = 10 продуктов
+        self.assertEqual(len(response.context['products']), 9)
+        self.assertTrue(response.context['is_paginated'])
+        self.assertIsNotNone(response.context['page_obj'].next_page_number)
+
+        # Тест второй страницы
+        response = self.client.get(reverse('catalog:product_list') + '?page=2')
+        self.assertEqual(response.status_code, 200)
+        # Проверяем, что на второй странице оставшиеся продукты (16 - 9 = 7)
+        self.assertEqual(len(response.context['products']), 7)
+        self.assertTrue(response.context['is_paginated'])
+        self.assertIsNotNone(response.context['page_obj'].previous_page_number)
+
+        # Тест несуществующей страницы
+        response = self.client.get(reverse('catalog:product_list') + '?page=3')
+        self.assertEqual(response.status_code, 404)
+
     def test_product_search_view(self):
         """Тест представления поиска продуктов"""
         # Тест поиска по названию
@@ -89,4 +120,39 @@ class CatalogViewsTest(TestCase):
         response = self.client.get(reverse('catalog:product_detail', 
                                          kwargs={'pk': 999, 
                                                 'slug': 'non-existent'}))
+        self.assertEqual(response.status_code, 404)
+
+    def test_category_detail_pagination(self):
+        """Тест пагинации на странице деталей категории"""
+        # Создаем достаточно продуктов для пагинации в категории
+        for i in range(15):
+            Product.objects.create(
+                name=f"Category Product {i}",
+                description="Test Description",
+                price=Decimal(f'{200 + i}.00'),
+                category=self.category  # Связываем с тестовой категорией
+            )
+
+        # Тест первой страницы
+        response = self.client.get(reverse('catalog:category_detail', kwargs={'slug': self.category.slug}))
+        self.assertEqual(response.status_code, 200)
+        # Проверяем, что на первой странице 9 продуктов (1 созданный в setUp + 8 новых)
+        # Важно: нужно учитывать продукт, созданный в setUp, если он тоже в этой категории
+        # В данном случае он в тестовой категории, так что всего 16 продуктов (1 + 15)
+        # На первой странице должно быть 9
+        self.assertEqual(len(response.context['category'].products.all()), 16) # Проверяем общее количество
+        self.assertEqual(len(response.context['products']), 9) # Проверяем количество на странице
+        self.assertTrue(response.context['products'].has_other_pages)
+        self.assertTrue(response.context['products'].has_next)
+
+        # Тест второй страницы
+        response = self.client.get(reverse('catalog:category_detail', kwargs={'slug': self.category.slug}) + '?page=2')
+        self.assertEqual(response.status_code, 200)
+        # Проверяем, что на второй странице оставшиеся продукты (16 - 9 = 7)
+        self.assertEqual(len(response.context['products']), 7)
+        self.assertTrue(response.context['products'].has_other_pages)
+        self.assertTrue(response.context['products'].has_previous)
+
+        # Тест несуществующей страницы
+        response = self.client.get(reverse('catalog:category_detail', kwargs={'slug': self.category.slug}) + '?page=3')
         self.assertEqual(response.status_code, 404) 

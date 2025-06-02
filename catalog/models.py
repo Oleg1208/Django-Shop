@@ -1,8 +1,28 @@
 from django.db import models
 from django.urls import reverse
 from django.conf import settings
-from django.utils.text import slugify
+# from sluggee.utils import slugify # Убираем импорт
+import cyrtranslit # Импортируем cyrtranslit
 from django.core.exceptions import ValidationError
+import re # Импортируем модуль re
+
+def clean_slug(slug):
+    """Очищает строку, оставляя только латинские буквы, цифры, дефисы и подчеркивания."""
+    print(f'Debug clean_slug input: {slug}') # Add debug print at the beginning
+    # Используем cyrtranslit для перевода кириллицы в латиницу
+    slug = cyrtranslit.to_latin(slug, 'ru')
+    print(f'Debug clean_slug after translit: {slug}') # Keep this debug print
+    # Переводим в нижний регистр
+    slug = slug.lower()
+    # Заменяем пробелы и другие разделители на дефисы
+    slug = re.sub(r'\\s+', '-', slug)
+    # Удаляем все символы, кроме латинских букв, цифр, дефисов и подчеркиваний
+    slug = re.sub(r'[^a-z0-9-_]+', '', slug)
+    # Удаляем повторяющиеся дефисы
+    slug = re.sub(r'-+', '-', slug)
+    # Удаляем дефисы в начале и конце строки
+    slug = slug.strip('-')
+    return slug
 
 
 class BaseCatalogItem(models.Model):
@@ -31,10 +51,31 @@ class Category(BaseCatalogItem):
         return reverse('catalog:category_detail', args=[self.slug])
 
     def save(self, *args, **kwargs):
+        # print(f'Debug save: Начало метода save для категории "{self.name}". self.slug до: {self.slug}') # Убираем Debug print
+        
+        # Генерируем slug только если он еще не установлен
         if not self.slug:
-            self.slug = slugify(self.name)
-        self.full_clean()
+            # Используем clean_slug для генерации и очистки слага
+            original_slug = clean_slug(self.name)
+            # Убеждаемся в уникальности slug, добавляя суффикс при необходимости
+            queryset = self.__class__.objects.all()
+            if self.pk: # Исключаем текущий объект при обновлении
+                queryset = queryset.exclude(pk=self.pk)
+            
+            slug = original_slug
+            count = 1
+            while queryset.filter(slug=slug).exists():
+                slug = f'{original_slug}-{count}'
+                count += 1
+            self.slug = slug
+            # print(f'Debug save: slug сгенерирован: {self.slug}') # Убираем Debug print
+
+        print(f'Debug save Category: Слаг перед full_clean: {self.slug}') # Debug print
+        self.full_clean() # Возвращаем валидацию
+        # print('Debug save: full_clean() завершен.') # Убираем Debug print
+
         super().save(*args, **kwargs)
+        # print('Debug save: Объект сохранен.') # Убираем Debug print
 
 
 class Product(BaseCatalogItem):
@@ -70,7 +111,8 @@ class Product(BaseCatalogItem):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            # Используем clean_slug для генерации и очистки слага
+            self.slug = clean_slug(self.name)
         self.full_clean()
         super().save(*args, **kwargs)
 
