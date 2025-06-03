@@ -6,6 +6,11 @@ from catalog.models import Customer
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from .forms import CustomUserCreationForm, UserProfileForm
+from rest_framework.authtoken.models import Token
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
@@ -26,7 +31,13 @@ def register(request):
 
 @login_required
 def profile(request):
-    return render(request, 'users/profile.html')
+    # Get or create token for the user
+    token, created = Token.objects.get_or_create(user=request.user)
+    context = {
+        'user': request.user,
+        'token': token.key
+    }
+    return render(request, 'users/profile.html', context)
 
 @require_POST
 def logout_view(request):
@@ -45,12 +56,31 @@ def profile_update(request):
         form = UserProfileForm(instance=request.user)
     return render(request, 'users/profile.html', {'form': form})
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def refresh_token(request):
+    """
+    Delete the old token and create a new one
+    """
+    try:
+        # Delete the old token
+        request.user.auth_token.delete()
+    except (AttributeError, Token.DoesNotExist):
+        pass
+
+    # Create a new token
+    token = Token.objects.create(user=request.user)
+    return Response({'token': token.key})
+
 def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
             login(request, user)
+            # Create or get token for API access
+            token, created = Token.objects.get_or_create(user=user)
+            messages.success(request, f'Your API token is: {token.key}')
             return redirect('catalog:product_list')
     else:
         form = AuthenticationForm()

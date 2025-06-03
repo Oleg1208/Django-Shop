@@ -26,15 +26,15 @@ router = DefaultRouter()
 router.register(r'categories', CategoryViewSet)
 router.register(r'products', ProductViewSet)
 router.register(r'customers', CustomerViewSet)
-router.register(r'orders', OrderViewSet)
-router.register(r'orderitems', OrderItemViewSet)
+router.register(r'orders', OrderViewSet, basename='order')
+router.register(r'orderitems', OrderItemViewSet, basename='orderitem')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('users.urls', namespace='users')),
     path('catalog/', include('catalog.urls', namespace='catalog')),
     path('', RedirectView.as_view(url='/catalog/categories/', permanent=False), name='home'),
-    path('api/', include(router.urls)),
+    path('api/', include((router.urls, 'api'), namespace='api')),
 ]
 
 if settings.DEBUG:
