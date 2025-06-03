@@ -5,6 +5,7 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = '__all__'
+        extra_kwargs = { "slug": { "read_only": True } }
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
